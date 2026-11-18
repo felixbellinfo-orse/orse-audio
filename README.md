@@ -12,28 +12,18 @@ Open `index.html` on GitHub and click the pencil icon. Search for `Edit the rent
 2. In `index.html`, update the corresponding `src` and `alt` text. Set `width` and `height` to the new file’s dimensions so the layout is stable while it loads.
 3. The `data-dither` attribute tells `dither.js` to render it in the same ink colour as the text. Remove the attribute if you prefer to supply a finished image. Adjust `DITHER_WIDTH` in `dither.js` to change the dot size.
 
-The current horse and both photos are extracted from the supplied mockup. Both service photos deliberately use the same source until separate originals are available. For a sharper horse, replace `assets/horse.png` with the original transparent artwork (or change the file path to an SVG in `index.html`). The swing is set by `--swing` in `style.css`. The title font is Almendra, with its license in `assets/almendra-license.txt`.
+The horse and wordmark are loaded from `assets/horse.png` and `assets/orse-wordmark.png`. The swing is set by `--swing` in `style.css`. The title font is Almendra, with its license in `assets/almendra-license.txt`.
 
 ## Add photos to the galleries
 
-1. Upload full-colour JPG, PNG, WebP or AVIF files to `assets/events/` or `assets/speakers/`.
-2. Open `galleries.json` on GitHub and click the pencil icon. Add one entry per photo inside the corresponding list. Match the filename exactly. `alt` describes the photo for people who can’t see it; `caption` is optional and appears in both the grid and the lightbox.
-3. The array order is the gallery order. When adding multiple entries, separate them with commas, but don’t add a trailing comma after the last one.
+Upload directly to Are.na, not to the repo:
 
-```json
-{
-  "events": [
-    {
-      "file": "my-event.jpg",
-      "alt": "Describe what is visible in the photo here",
-      "caption": "Event name and venue"
-    }
-  ],
-  "speakers": []
-}
-```
+- **Gallery of events:** [Soundsystem rental](https://www.are.na/felix-bell/soundsystem-rental)
+- **Gallery of speakers:** [Bespoke speaker design](https://www.are.na/felix-bell/bespoke-speaker-design)
 
-Both gallery links open over the landing page. The X in the top-left corner, a click outside the window, or Escape closes the gallery. Photos are not dithered in either gallery. The square thumbnails are cropped, but the lightbox shows each entire photo. For large galleries, an optional `"thumb": "my-event-small.webp"` can point to a smaller image in the same folder, while `file` stays the full-size version.
+Use image blocks in these channels. A descriptive block title becomes the caption; filename-only titles are hidden. Non-image blocks (including links and connected channels) are skipped. The galleries use the order returned by the [Are.na channel API](https://www.are.na/developers/explore/channel.md). The old `galleries.json` file is no longer used. No API key or GitHub update is needed when you add or remove a photo. Changes can take a few minutes to appear because the Are.na feed is cached.
+
+Keep the channels **Closed** so only collaborators can add images while website visitors can still see them. Both galleries open over the landing page. Close a gallery with the X, by clicking outside, or with Escape. The square thumbnails are cropped, but the lightbox shows the whole photo in full colour.
 
 ## Put it online
 

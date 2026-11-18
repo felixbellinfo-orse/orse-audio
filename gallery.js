@@ -1,9 +1,67 @@
-function assetPath(key, filename) {
-  return `./assets/${key}/${encodeURIComponent(filename)}`;
+const ARENA_CHANNELS = {
+  events: "soundsystem-rental",
+  speakers: "bespoke-speaker-design",
+};
+const REFRESH_AFTER_MS = 60_000;
+
+function firstHttps(...values) {
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+    try {
+      const url = new URL(value);
+      if (url.protocol === "https:" && !url.username && !url.password) return url.href;
+    } catch {
+      // An image block does not always have every size.
+    }
+  }
+  return "";
 }
 
-function isImage(filename) {
-  return typeof filename === "string" && /^[^/\\]+\.(jpe?g|png|webp|avif)$/i.test(filename);
+const textValue = value => typeof value === "string" ? value.trim() : "";
+
+function arenaPhoto(block) {
+  if (block?.type !== "Image" || !block.image) return null;
+  const image = block.image;
+  const src = firstHttps(image.large?.src, image.src, image.medium?.src, image.small?.src);
+  if (!src) return null;
+  const title = textValue(block.title);
+  const caption = title && title !== image.filename && !/\.(jpe?g|png|webp|avif|gif|heic|heif|tiff?)$/i.test(title)
+    ? title : "";
+  return {
+    src,
+    thumb: firstHttps(image.small?.src, image.medium?.src, image.square?.src, src),
+    original: firstHttps(image.src),
+    caption,
+    alt: textValue(image.alt_text) || textValue(block.description?.plain) || caption,
+  };
+}
+
+async function fetchChannelPhotos(key) {
+  const channel = ARENA_CHANNELS[key];
+  if (!channel) throw new Error("Unknown gallery");
+  const endpoint = new URL(`https://api.are.na/v3/channels/${encodeURIComponent(channel)}/contents`);
+  endpoint.searchParams.set("per", "100");
+  const photos = new Map();
+  let page = 1;
+
+  while (page !== null) {
+    endpoint.searchParams.set("page", String(page));
+    const response = await fetch(endpoint, { credentials: "omit" });
+    if (!response.ok) throw new Error("Are.na gallery unavailable");
+    const result = await response.json();
+    if (!Array.isArray(result.data) || !result.meta) throw new Error("Invalid Are.na gallery");
+
+    for (const block of result.data) {
+      const photo = arenaPhoto(block);
+      if (photo && !photos.has(block.id ?? photo.src)) photos.set(block.id ?? photo.src, photo);
+    }
+
+    const next = result.meta.next_page;
+    if (next != null && (!Number.isSafeInteger(next) || next <= page)) throw new Error("Invalid Are.na pagination");
+    page = next ?? null;
+  }
+
+  return Array.from(photos.values(), (photo, index) => ({ ...photo, alt: photo.alt || `Photo ${index + 1}` }));
 }
 
 function closeOnOutside(box) {
@@ -20,7 +78,7 @@ function closeOnOutside(box) {
   });
 }
 
-function addLightbox(photos, key) {
+function addLightbox(photos) {
   const box = document.createElement("dialog");
   if (typeof box.showModal !== "function") return null;
   box.className = "lightbox";
@@ -74,11 +132,15 @@ function addLightbox(photos, key) {
     });
     next.addEventListener("error", () => {
       if (image !== next) return;
+      if (photo.original && next.src !== photo.original) {
+        next.src = photo.original;
+        return;
+      }
       message.textContent = "This photo couldn’t be loaded.";
     });
     image.replaceWith(next);
     image = next;
-    next.src = assetPath(key, photo.file);
+    next.src = photo.src;
   }
 
   steps.forEach(button => button.addEventListener("click", () => render(active + Number(button.dataset.step))));
@@ -92,26 +154,27 @@ function addLightbox(photos, key) {
     render(active + (event.key === "ArrowLeft" ? -1 : 1));
   });
 
-  return (index, trigger) => {
-    opener = trigger;
-    render(index);
-    box.showModal();
+  return {
+    open(index, trigger) {
+      opener = trigger;
+      render(index);
+      box.showModal();
+    },
+    dispose: () => box.remove(),
+    isOpen: () => box.open,
   };
 }
 
-function renderGallery(entries, grid, status) {
+function renderGallery(photos, grid, status) {
   const key = grid.dataset.gallery;
-  const photos = entries.filter(entry => isImage(entry?.file)).map((entry, index) => ({
-    file: entry.file,
-    thumb: isImage(entry.thumb) ? entry.thumb : entry.file,
-    alt: typeof entry.alt === "string" && entry.alt.trim() ? entry.alt.trim() : `Photo ${index + 1}`,
-    caption: typeof entry.caption === "string" ? entry.caption.trim() : "",
-  }));
   if (!photos.length) {
+    grid.replaceChildren();
+    status.hidden = false;
     status.textContent = key === "events" ? "No event photos yet." : "No speaker photos yet.";
-    return;
+    return null;
   }
-  const openLightbox = addLightbox(photos, key);
+  const lightbox = addLightbox(photos);
+  const items = document.createDocumentFragment();
 
   photos.forEach((photo, index) => {
     const item = document.createElement("li");
@@ -121,49 +184,50 @@ function renderGallery(entries, grid, status) {
     const caption = document.createElement("span");
 
     tile.className = "gallery-tile";
-    tile.href = assetPath(key, photo.file);
+    tile.href = photo.original || photo.src;
     tile.setAttribute("aria-label", `Open photo ${index + 1}: ${photo.alt}`);
     number.textContent = String(index + 1).padStart(3, "0");
     thumbnail.alt = photo.alt;
     thumbnail.loading = "lazy";
     thumbnail.decoding = "async";
-    thumbnail.src = assetPath(key, photo.thumb);
+    if (photo.thumb !== photo.src) {
+      thumbnail.addEventListener("error", () => { thumbnail.src = photo.src; }, { once: true });
+    }
+    thumbnail.src = photo.thumb;
     caption.className = "gallery-caption";
     caption.textContent = photo.caption;
     caption.hidden = !photo.caption;
     tile.append(number, thumbnail, caption);
     item.append(tile);
-    grid.append(item);
+    items.append(item);
 
-    if (openLightbox) {
+    if (lightbox) {
       tile.setAttribute("aria-haspopup", "dialog");
       tile.addEventListener("click", event => {
         if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
         event.preventDefault();
-        openLightbox(index, tile);
+        lightbox.open(index, tile);
       });
     }
   });
+  grid.replaceChildren(items);
   status.hidden = true;
+  return lightbox;
 }
 
-let catalogue;
-
-async function loadGallery(grid, status) {
+async function loadGallery(grid, status, previous) {
   try {
-    catalogue ??= fetch("./galleries.json").then(response => {
-      if (!response.ok) throw new Error("Gallery unavailable");
-      return response.json();
-    });
-    const galleries = await catalogue;
-    const entries = galleries[grid.dataset.gallery];
-    if (!Array.isArray(entries)) throw new Error("Invalid gallery");
-    renderGallery(entries, grid, status);
-    return true;
+    const photos = await fetchChannelPhotos(grid.dataset.gallery);
+    // Keep the current thumbnail targets intact if a refresh hasn't changed them.
+    const fingerprint = JSON.stringify(photos);
+    if (previous?.fingerprint === fingerprint) return { ...previous, loadedAt: Date.now() };
+    if (previous?.lightbox?.isOpen()) return previous;
+    const lightbox = renderGallery(photos, grid, status);
+    previous?.lightbox?.dispose();
+    return { fingerprint, lightbox, loadedAt: Date.now() };
   } catch {
-    catalogue = undefined;
-    status.textContent = "Photos couldn’t be loaded. Try again in a moment.";
-    return false;
+    if (!previous) status.textContent = "Photos couldn’t be loaded from Are.na. Try again in a moment.";
+    return previous;
   }
 }
 
@@ -183,15 +247,15 @@ function prepareGalleryPopup(trigger, template) {
   popup.addEventListener("close", () => trigger.focus({ preventScroll: true }));
   closeOnOutside(popup);
   document.body.append(popup);
-  let loaded = false;
+  let current;
   let pending = false;
 
   return async () => {
     popup.showModal();
-    if (loaded || pending) return;
+    if (pending || (current && Date.now() - current.loadedAt < REFRESH_AFTER_MS)) return;
     pending = true;
-    status.textContent = "Loading photos…";
-    loaded = await loadGallery(grid, status);
+    if (!current) status.textContent = "Loading photos…";
+    current = await loadGallery(grid, status, current);
     pending = false;
   };
 }
