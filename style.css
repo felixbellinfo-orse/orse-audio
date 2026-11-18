@@ -1,0 +1,203 @@
+@font-face {
+  font-family: Almendra;
+  src: url("./assets/almendra.woff2") format("woff2");
+  font-display: swap;
+}
+
+:root {
+  --paper: #f0ebd0;
+  --ink: #202b85;
+  --display: Almendra, Georgia, serif;
+  --body: Arial, sans-serif;
+  --text-small: clamp(.75rem, .72rem + .12vw, .875rem);
+  --text-copy: clamp(.875rem, .81rem + .17vw, 1rem);
+  --text-title: clamp(1.32rem, 1.08rem + .45vw, 1.6rem);
+  --photo-width: clamp(9rem, 13vw, 12rem);
+  --horse-width: clamp(9rem, 12.3vw, 12.3rem);
+  --swing: 25deg;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  font: var(--text-copy)/1.38 var(--body);
+}
+
+.stage {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 1.55rem;
+  inline-size: min(100%, 34rem);
+  margin-inline: auto;
+  padding: 3.1rem 1.5rem 2.5rem;
+}
+
+.brand {
+  position: relative;
+  align-self: start;
+  justify-self: center;
+  inline-size: var(--horse-width);
+  margin-block: .4rem 2.2rem;
+}
+
+.horse {
+  inline-size: 100%;
+  block-size: auto;
+  transform-origin: 50% 56%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .horse { animation: rock 6s ease-in-out infinite; }
+  .panel { animation: unfold 220ms ease-out both; }
+}
+
+@keyframes rock {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(var(--swing)); }
+  75% { transform: rotate(calc(-1 * var(--swing))); }
+}
+
+@keyframes unfold {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.signature {
+  position: absolute;
+  inset-block-start: 87%;
+  inset-inline-start: 77%;
+  font: normal var(--text-title)/1.1 var(--display);
+  white-space: nowrap;
+}
+
+.signature span {
+  display: block;
+  margin-block-start: .18rem;
+  font-size: var(--text-small);
+}
+
+.service {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  align-self: start;
+  justify-items: start;
+}
+
+.disclosure { display: contents; }
+
+summary {
+  position: relative;
+  z-index: 1;
+  grid-area: 1 / 1;
+  display: grid;
+  align-items: center;
+  min-block-size: 44px;
+  list-style: none;
+  font: normal var(--text-title)/1.12 var(--display);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+summary::-webkit-details-marker { display: none; }
+summary:hover, details[open] > summary, summary:active {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .16em;
+}
+
+.photo {
+  grid-area: 2 / 1;
+  inline-size: var(--photo-width);
+  margin-block-start: 1.15rem;
+  align-self: start;
+}
+
+/* Keep native details semantics; the grid layers the open copy over its photo. */
+.panel {
+  position: relative;
+  z-index: 1;
+  inline-size: min(100%, 18.25rem);
+  padding: .85rem;
+  border: 5px solid transparent;
+  background:
+    linear-gradient(var(--paper), var(--paper)) padding-box,
+    repeating-linear-gradient(135deg, var(--ink) 0 1px, var(--paper) 1px 2.5px) border-box;
+  overflow-wrap: anywhere;
+  line-height: 1.27;
+}
+
+details::details-content { grid-area: 2 / 1; }
+.panel p + p { margin-block-start: .85em; }
+
+.photo img, .photo canvas { inline-size: 100%; block-size: auto; }
+.photo canvas { image-rendering: pixelated; }
+.photo img[data-rendered] { position: absolute; inline-size: 1px; block-size: 1px; clip-path: inset(50%); }
+
+.contact {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: clamp(1rem, 3.2vw, 3rem);
+  padding: .25rem 1rem clamp(.7rem, 2.6vh, 1.6rem);
+  font-size: var(--text-small);
+}
+
+.contact a {
+  display: flex;
+  align-items: center;
+  min-block-size: 44px;
+  text-decoration: none;
+}
+
+.contact a:is(:hover, :focus-visible, :active) { text-decoration: underline; }
+
+@media (max-width: 949px) {
+  .brand { margin-inline-end: clamp(2rem, 21vw, 5.5rem); }
+  .bespoke { justify-self: end; }
+  .service:has(details[open]) .photo { grid-row: 3; }
+  .panel { font-size: 1rem; line-height: 1.38; }
+}
+
+@media (min-width: 950px) {
+  .stage {
+    inline-size: min(100%, 105rem);
+    grid-template-columns: 33.5% 33% 33.5%;
+    grid-template-rows: auto;
+    gap: 0;
+    padding: 0 0 2.5rem;
+  }
+
+  .brand {
+    grid-area: 1 / 2;
+    margin-block: clamp(14.5rem, 36.7svh, 25rem) 0;
+  }
+
+  .rental {
+    grid-area: 1 / 1;
+    margin-block-start: clamp(5.5rem, 15.5svh, 11rem);
+    margin-inline-start: 34%;
+  }
+
+  .bespoke {
+    grid-area: 1 / 3;
+    margin-block-start: clamp(9rem, 26.6svh, 18rem);
+    margin-inline: 18.9% 1rem;
+  }
+
+  .rental .photo { margin-inline-start: 1.05rem; }
+  .bespoke .photo { margin-inline-start: 1.75rem; }
+  .rental:has(details[open]) .photo { transform: translate(-56%, 6%); }
+  .bespoke:has(details[open]) .photo { transform: translate(24%, 6%); }
+}
+
+/* Older browsers can still show the disclosure in normal flow. */
+@supports not selector(details::details-content) {
+  .disclosure { display: block; }
+  .brand .signature { z-index: 1; }
+  .service:has(details[open]) .photo { grid-row: 3; transform: none; }
+}

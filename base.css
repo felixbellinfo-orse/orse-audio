@@ -1,0 +1,6 @@
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, p { margin: 0; }
+body { min-block-size: 100svh; }
+img, canvas { display: block; max-inline-size: 100%; }
+a { color: inherit; text-underline-offset: .2em; }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
