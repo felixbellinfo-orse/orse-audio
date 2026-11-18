@@ -21,7 +21,9 @@ Upload directly to Are.na, not to the repo:
 - **Gallery of events:** [Soundsystem rental](https://www.are.na/felix-bell/soundsystem-rental)
 - **Gallery of speakers:** [Bespoke speaker design](https://www.are.na/felix-bell/bespoke-speaker-design)
 
-Use image blocks in these channels. A descriptive block title becomes the caption; filename-only titles are hidden. Non-image blocks (including links and connected channels) are skipped. The galleries use the order returned by the [Are.na channel API](https://www.are.na/developers/explore/channel.md). The old `galleries.json` file is no longer used. No API key or GitHub update is needed when you add or remove a photo. Changes can take a few minutes to appear because the Are.na feed is cached.
+Upload photos as image blocks. A descriptive block title becomes the caption; filename-only titles are hidden. Add a text block for an event name, date or note. It appears as a tile in the same grid, and the next photo starts again at `001`. The photo lightbox skips text tiles and counts photos across the whole gallery.
+
+The galleries use the order returned by the [Are.na channel API](https://www.are.na/developers/explore/channel.md) and skip other block types such as links and connected channels. No API key or GitHub update is needed when you add, reorder, or remove blocks. Changes can take a few minutes to appear because the Are.na feed is cached.
 
 Keep the channels **Closed** so only collaborators can add images while website visitors can still see them. Both galleries open over the landing page. Close a gallery with the X, by clicking outside, or with Escape. The square thumbnails are cropped, but the lightbox shows the whole photo in full colour.
 

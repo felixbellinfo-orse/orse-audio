@@ -81,6 +81,11 @@ body {
   font-size: var(--text-small);
 }
 
+.signature .wordmark {
+  width: 125px;
+  height: auto;
+}
+
 .service {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -175,6 +180,7 @@ details::details-content {
   }
   .brand .horse { inline-size: var(--horse-width); margin-inline: auto; }
   .signature { position: static; margin-block-start: .25rem; white-space: normal; }
+  .signature .wordmark { margin-inline: auto; }
   .bespoke { grid-area: 3 / 1; grid-template-columns: minmax(0, 1fr) auto; }
   .bespoke summary { grid-column: 2; }
   .bespoke .photo { grid-column: 2; }
@@ -241,15 +247,5 @@ details::details-content {
       inset-inline: auto 0;
       max-block-size: min(15rem, 64svh);
     }
-  }
-}
-.signature .wordmark {
-  width: 125px;
-  height: auto;
-}
-
-@media (max-width: 949px) {
-  .signature .wordmark {
-    margin-inline: auto;
   }
 }

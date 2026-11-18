@@ -28,6 +28,7 @@ function arenaPhoto(block) {
   const caption = title && title !== image.filename && !/\.(jpe?g|png|webp|avif|gif|heic|heif|tiff?)$/i.test(title)
     ? title : "";
   return {
+    type: "photo",
     src,
     thumb: firstHttps(image.small?.src, image.medium?.src, image.square?.src, src),
     original: firstHttps(image.src),
@@ -36,12 +37,20 @@ function arenaPhoto(block) {
   };
 }
 
-async function fetchChannelPhotos(key) {
+function arenaEntry(block) {
+  if (block?.type !== "Text") return arenaPhoto(block);
+  const title = textValue(block.title);
+  const content = textValue(block.content?.plain);
+  if (!title && !content) return null;
+  return { type: "text", title, content: content === title ? "" : content };
+}
+
+async function fetchChannelEntries(key) {
   const channel = ARENA_CHANNELS[key];
   if (!channel) throw new Error("Unknown gallery");
   const endpoint = new URL(`https://api.are.na/v3/channels/${encodeURIComponent(channel)}/contents`);
   endpoint.searchParams.set("per", "100");
-  const photos = new Map();
+  const entries = new Map();
   let page = 1;
 
   while (page !== null) {
@@ -52,8 +61,10 @@ async function fetchChannelPhotos(key) {
     if (!Array.isArray(result.data) || !result.meta) throw new Error("Invalid Are.na gallery");
 
     for (const block of result.data) {
-      const photo = arenaPhoto(block);
-      if (photo && !photos.has(block.id ?? photo.src)) photos.set(block.id ?? photo.src, photo);
+      const entry = arenaEntry(block);
+      if (!entry) continue;
+      const id = block.id ?? (entry.type === "photo" ? entry.src : entry);
+      if (!entries.has(id)) entries.set(id, entry);
     }
 
     const next = result.meta.next_page;
@@ -61,7 +72,7 @@ async function fetchChannelPhotos(key) {
     page = next ?? null;
   }
 
-  return Array.from(photos.values(), (photo, index) => ({ ...photo, alt: photo.alt || `Photo ${index + 1}` }));
+  return [...entries.values()];
 }
 
 function closeOnOutside(box) {
@@ -117,7 +128,7 @@ function addLightbox(photos) {
     active = (index + photos.length) % photos.length;
     const photo = photos[active];
     counter.textContent = `${active + 1} / ${photos.length}`;
-    caption.textContent = photo.caption || "";
+    caption.textContent = photo.caption;
     caption.hidden = !photo.caption;
     message.hidden = false;
     message.textContent = "Loading photo…";
@@ -165,19 +176,50 @@ function addLightbox(photos) {
   };
 }
 
-function renderGallery(photos, grid, status) {
+function addTextTile(entry, item) {
+  const tile = document.createElement("div");
+  tile.className = "gallery-tile gallery-text-tile";
+  if (entry.title) {
+    const title = document.createElement("p");
+    title.className = "gallery-text-title";
+    title.textContent = entry.title;
+    tile.append(title);
+  }
+  if (entry.content) {
+    const content = document.createElement("p");
+    content.textContent = entry.content;
+    tile.append(content);
+  }
+  item.append(tile);
+}
+
+function renderGallery(entries, grid, status) {
   const key = grid.dataset.gallery;
-  if (!photos.length) {
+  if (!entries.length) {
     grid.replaceChildren();
     status.hidden = false;
     status.textContent = key === "events" ? "No event photos yet." : "No speaker photos yet.";
     return null;
   }
-  const lightbox = addLightbox(photos);
+  const photos = entries.filter(entry => entry.type === "photo").map((photo, index) => ({
+    ...photo,
+    alt: photo.alt || `Photo ${index + 1}`,
+  }));
+  const lightbox = photos.length ? addLightbox(photos) : null;
   const items = document.createDocumentFragment();
+  let photoIndex = 0;
+  let sectionNumber = 0;
 
-  photos.forEach((photo, index) => {
+  for (const entry of entries) {
     const item = document.createElement("li");
+    items.append(item);
+    if (entry.type === "text") {
+      addTextTile(entry, item);
+      sectionNumber = 0;
+      continue;
+    }
+    const index = photoIndex++;
+    const photo = photos[index];
     const tile = document.createElement("a");
     const number = document.createElement("span");
     const thumbnail = document.createElement("img");
@@ -186,7 +228,7 @@ function renderGallery(photos, grid, status) {
     tile.className = "gallery-tile";
     tile.href = photo.original || photo.src;
     tile.setAttribute("aria-label", `Open photo ${index + 1}: ${photo.alt}`);
-    number.textContent = String(index + 1).padStart(3, "0");
+    number.textContent = String(++sectionNumber).padStart(3, "0");
     thumbnail.alt = photo.alt;
     thumbnail.loading = "lazy";
     thumbnail.decoding = "async";
@@ -199,7 +241,6 @@ function renderGallery(photos, grid, status) {
     caption.hidden = !photo.caption;
     tile.append(number, thumbnail, caption);
     item.append(tile);
-    items.append(item);
 
     if (lightbox) {
       tile.setAttribute("aria-haspopup", "dialog");
@@ -209,7 +250,7 @@ function renderGallery(photos, grid, status) {
         lightbox.open(index, tile);
       });
     }
-  });
+  }
   grid.replaceChildren(items);
   status.hidden = true;
   return lightbox;
@@ -217,16 +258,16 @@ function renderGallery(photos, grid, status) {
 
 async function loadGallery(grid, status, previous) {
   try {
-    const photos = await fetchChannelPhotos(grid.dataset.gallery);
+    const entries = await fetchChannelEntries(grid.dataset.gallery);
     // Keep the current thumbnail targets intact if a refresh hasn't changed them.
-    const fingerprint = JSON.stringify(photos);
+    const fingerprint = JSON.stringify(entries);
     if (previous?.fingerprint === fingerprint) return { ...previous, loadedAt: Date.now() };
     if (previous?.lightbox?.isOpen()) return previous;
-    const lightbox = renderGallery(photos, grid, status);
+    const lightbox = renderGallery(entries, grid, status);
     previous?.lightbox?.dispose();
     return { fingerprint, lightbox, loadedAt: Date.now() };
   } catch {
-    if (!previous) status.textContent = "Photos couldn’t be loaded from Are.na. Try again in a moment.";
+    if (!previous) status.textContent = "The gallery couldn’t be loaded from Are.na. Try again in a moment.";
     return previous;
   }
 }
@@ -241,7 +282,7 @@ function prepareGalleryPopup(trigger, template) {
   heading.id = `gallery-popup-${key}-title`;
   heading.textContent = title;
   grid.dataset.gallery = key;
-  grid.setAttribute("aria-label", key === "events" ? "Event photos" : "Speaker photos");
+  grid.setAttribute("aria-label", key === "events" ? "Event gallery entries" : "Speaker gallery entries");
   popup.setAttribute("aria-labelledby", heading.id);
   popup.querySelector(".gallery-popup-close").addEventListener("click", () => popup.close());
   popup.addEventListener("close", () => trigger.focus({ preventScroll: true }));
@@ -254,7 +295,7 @@ function prepareGalleryPopup(trigger, template) {
     popup.showModal();
     if (pending || (current && Date.now() - current.loadedAt < REFRESH_AFTER_MS)) return;
     pending = true;
-    if (!current) status.textContent = "Loading photos…";
+    if (!current) status.textContent = "Loading gallery…";
     current = await loadGallery(grid, status, current);
     pending = false;
   };
