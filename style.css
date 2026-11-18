@@ -120,7 +120,7 @@ summary:hover, details[open] > summary, summary:active {
 .panel {
   position: relative;
   z-index: 1;
-  inline-size: min(100%, 18.25rem);
+  inline-size: 100%;
   padding: .85rem;
   border: 5px solid transparent;
   background:
@@ -130,7 +130,11 @@ summary:hover, details[open] > summary, summary:active {
   line-height: 1.27;
 }
 
-details::details-content { grid-area: 2 / 1; }
+details::details-content {
+  grid-area: 2 / 1;
+  inline-size: min(100%, 18.25rem);
+  align-self: start;
+}
 .panel p + p { margin-block-start: .85em; }
 
 .photo img, .photo canvas { inline-size: 100%; block-size: auto; }
@@ -158,8 +162,13 @@ details::details-content { grid-area: 2 / 1; }
 
 @media (max-width: 949px) {
   .brand { margin-inline-end: clamp(2rem, 21vw, 5.5rem); }
-  .bespoke { justify-self: end; }
-  .service:has(details[open]) .photo { grid-row: 3; }
+  .bespoke { grid-template-columns: minmax(0, 1fr) auto; }
+  .bespoke summary { grid-column: 2; }
+  .bespoke .photo { grid-column: 2; }
+  .bespoke details::details-content {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
   .panel { font-size: 1rem; line-height: 1.38; }
 }
 
@@ -191,13 +200,24 @@ details::details-content { grid-area: 2 / 1; }
 
   .rental .photo { margin-inline-start: 1.05rem; }
   .bespoke .photo { margin-inline-start: 1.75rem; }
-  .rental:has(details[open]) .photo { transform: translate(-56%, 6%); }
-  .bespoke:has(details[open]) .photo { transform: translate(24%, 6%); }
 }
 
-/* Older browsers can still show the disclosure in normal flow. */
+/* Preserve the overlap in browsers without the details content pseudo-element. */
 @supports not selector(details::details-content) {
-  .disclosure { display: block; }
-  .brand .signature { z-index: 1; }
-  .service:has(details[open]) .photo { grid-row: 3; transform: none; }
+  .disclosure {
+    display: block;
+    grid-area: 1 / 1 / 3 / -1;
+    inline-size: 100%;
+    z-index: 1;
+  }
+  .photo, .bespoke .photo {
+    grid-row: 1 / 3;
+    margin-block-start: calc(44px + 1.15rem);
+  }
+  .panel { inline-size: min(100%, 18.25rem); }
+  @media (max-width: 949px) {
+    .bespoke { grid-template-columns: minmax(0, 1fr) 12.5rem; }
+    .bespoke summary, .bespoke .panel { margin-inline-start: auto; }
+    .bespoke summary { inline-size: max-content; }
+  }
 }
