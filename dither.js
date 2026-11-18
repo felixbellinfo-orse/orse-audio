@@ -10,7 +10,7 @@ const BAYER_8 = [
   42, 26, 38, 22, 41, 25, 37, 21,
 ];
 
-const DITHER_WIDTH = 168; // Lower for larger dots; higher for finer dots.
+const DITHER_WIDTH = 300; // Lower for larger dots; higher for finer dots.
 
 function addDither(original) {
   const source = new Image();

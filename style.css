@@ -6,7 +6,7 @@
 
 :root {
   --paper: #f0ebd0;
-  --ink: #202b85;
+  --ink: #2b3baa;
   --hatched-frame: linear-gradient(var(--paper), var(--paper)) padding-box,
     repeating-linear-gradient(135deg, var(--ink) 0 1px, var(--paper) 1px 2.5px) border-box;
   --display: Almendra, Georgia, serif;
@@ -15,7 +15,7 @@
   --text-copy: clamp(.875rem, .81rem + .17vw, 1rem);
   --text-title: clamp(1.32rem, 1.08rem + .45vw, 1.6rem);
   --photo-width: clamp(9rem, 13vw, 12rem);
-  --horse-width: clamp(9rem, 12.3vw, 12.3rem);
+  --horse-width: clamp(9rem, 10vw, 10rem);
   --swing: 25deg;
 }
 
@@ -202,12 +202,14 @@ details::details-content {
   }
 
   .rental {
+    --photo-width: 275px;
     grid-area: 1 / 1;
     margin-block-start: clamp(5.5rem, 15.5svh, 11rem);
     margin-inline-start: 34%;
   }
 
   .bespoke {
+    --photo-width: 200px;
     grid-area: 1 / 3;
     margin-block-start: clamp(9rem, 26.6svh, 18rem);
     margin-inline: 18.9% 1rem;
@@ -239,5 +241,15 @@ details::details-content {
       inset-inline: auto 0;
       max-block-size: min(15rem, 64svh);
     }
+  }
+}
+.signature .wordmark {
+  width: 125px;
+  height: auto;
+}
+
+@media (max-width: 949px) {
+  .signature .wordmark {
+    margin-inline: auto;
   }
 }
