@@ -1,15 +1,26 @@
-const grid = document.querySelector("[data-gallery]");
-const status = document.querySelector(".gallery-status");
-
-function assetPath(filename) {
-  return `./assets/${grid.dataset.gallery}/${encodeURIComponent(filename)}`;
+function assetPath(key, filename) {
+  return `./assets/${key}/${encodeURIComponent(filename)}`;
 }
 
 function isImage(filename) {
   return typeof filename === "string" && /^[^/\\]+\.(jpe?g|png|webp|avif)$/i.test(filename);
 }
 
-function addLightbox(photos) {
+function closeOnOutside(box) {
+  let backdropDown = false;
+  const outside = event => {
+    const r = box.getBoundingClientRect();
+    return event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom;
+  };
+  box.addEventListener("pointerdown", event => { backdropDown = event.target === box && outside(event); });
+  box.addEventListener("pointercancel", () => { backdropDown = false; });
+  box.addEventListener("click", event => {
+    if (backdropDown && event.target === box && outside(event)) box.close();
+    backdropDown = false;
+  });
+}
+
+function addLightbox(photos, key) {
   const box = document.createElement("dialog");
   if (typeof box.showModal !== "function") return null;
   box.className = "lightbox";
@@ -41,7 +52,6 @@ function addLightbox(photos) {
   const steps = [...box.querySelectorAll("[data-step]")];
   let active = 0;
   let opener;
-  let backdropDown = false;
 
   if (photos.length === 1) steps.forEach(button => { button.hidden = true; });
 
@@ -68,22 +78,14 @@ function addLightbox(photos) {
     });
     image.replaceWith(next);
     image = next;
-    next.src = assetPath(photo.file);
+    next.src = assetPath(key, photo.file);
   }
 
   steps.forEach(button => button.addEventListener("click", () => render(active + Number(button.dataset.step))));
   close.addEventListener("click", () => box.close());
   box.addEventListener("close", () => opener?.focus({ preventScroll: true }));
 
-  const outside = event => {
-    const r = box.getBoundingClientRect();
-    return event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom;
-  };
-  box.addEventListener("pointerdown", event => { backdropDown = event.target === box && outside(event); });
-  box.addEventListener("click", event => {
-    if (backdropDown && event.target === box && outside(event)) box.close();
-    backdropDown = false;
-  });
+  closeOnOutside(box);
   box.addEventListener("keydown", event => {
     if (photos.length < 2 || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
     event.preventDefault();
@@ -97,15 +99,19 @@ function addLightbox(photos) {
   };
 }
 
-function renderGallery(entries) {
+function renderGallery(entries, grid, status) {
+  const key = grid.dataset.gallery;
   const photos = entries.filter(entry => isImage(entry?.file)).map((entry, index) => ({
     file: entry.file,
     thumb: isImage(entry.thumb) ? entry.thumb : entry.file,
     alt: typeof entry.alt === "string" && entry.alt.trim() ? entry.alt.trim() : `Photo ${index + 1}`,
     caption: typeof entry.caption === "string" ? entry.caption.trim() : "",
   }));
-  if (!photos.length) return;
-  const openLightbox = addLightbox(photos);
+  if (!photos.length) {
+    status.textContent = key === "events" ? "No event photos yet." : "No speaker photos yet.";
+    return;
+  }
+  const openLightbox = addLightbox(photos, key);
 
   photos.forEach((photo, index) => {
     const item = document.createElement("li");
@@ -115,13 +121,13 @@ function renderGallery(entries) {
     const caption = document.createElement("span");
 
     tile.className = "gallery-tile";
-    tile.href = assetPath(photo.file);
+    tile.href = assetPath(key, photo.file);
     tile.setAttribute("aria-label", `Open photo ${index + 1}: ${photo.alt}`);
     number.textContent = String(index + 1).padStart(3, "0");
     thumbnail.alt = photo.alt;
     thumbnail.loading = "lazy";
     thumbnail.decoding = "async";
-    thumbnail.src = assetPath(photo.thumb);
+    thumbnail.src = assetPath(key, photo.thumb);
     caption.className = "gallery-caption";
     caption.textContent = photo.caption;
     caption.hidden = !photo.caption;
@@ -141,14 +147,68 @@ function renderGallery(entries) {
   status.hidden = true;
 }
 
-fetch("./galleries.json")
-  .then(response => {
-    if (!response.ok) throw new Error("Gallery unavailable");
-    return response.json();
-  })
-  .then(galleries => {
+let catalogue;
+
+async function loadGallery(grid, status) {
+  try {
+    catalogue ??= fetch("./galleries.json").then(response => {
+      if (!response.ok) throw new Error("Gallery unavailable");
+      return response.json();
+    });
+    const galleries = await catalogue;
     const entries = galleries[grid.dataset.gallery];
     if (!Array.isArray(entries)) throw new Error("Invalid gallery");
-    renderGallery(entries);
-  })
-  .catch(() => { status.textContent = "Photos couldn’t be loaded. Try refreshing the page."; });
+    renderGallery(entries, grid, status);
+    return true;
+  } catch {
+    catalogue = undefined;
+    status.textContent = "Photos couldn’t be loaded. Try again in a moment.";
+    return false;
+  }
+}
+
+function prepareGalleryPopup(trigger, template) {
+  const key = trigger.dataset.openGallery;
+  const popup = template.content.firstElementChild.cloneNode(true);
+  const heading = popup.querySelector("h2");
+  const grid = popup.querySelector("[data-gallery]");
+  const status = popup.querySelector(".gallery-status");
+  const title = key === "events" ? "gallery of events" : "gallery of speakers";
+  heading.id = `gallery-popup-${key}-title`;
+  heading.textContent = title;
+  grid.dataset.gallery = key;
+  grid.setAttribute("aria-label", key === "events" ? "Event photos" : "Speaker photos");
+  popup.setAttribute("aria-labelledby", heading.id);
+  popup.querySelector(".gallery-popup-close").addEventListener("click", () => popup.close());
+  popup.addEventListener("close", () => trigger.focus({ preventScroll: true }));
+  closeOnOutside(popup);
+  document.body.append(popup);
+  let loaded = false;
+  let pending = false;
+
+  return async () => {
+    popup.showModal();
+    if (loaded || pending) return;
+    pending = true;
+    status.textContent = "Loading photos…";
+    loaded = await loadGallery(grid, status);
+    pending = false;
+  };
+}
+
+const standaloneGrid = document.querySelector("main [data-gallery]");
+if (standaloneGrid) loadGallery(standaloneGrid, document.querySelector(".gallery-status"));
+
+const popupTemplate = document.querySelector("#gallery-popup-template");
+if (popupTemplate && typeof popupTemplate.content.firstElementChild.showModal === "function") {
+  document.querySelectorAll("[data-open-gallery]").forEach(trigger => {
+    trigger.setAttribute("aria-haspopup", "dialog");
+    let open;
+    trigger.addEventListener("click", event => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+      event.preventDefault();
+      open ??= prepareGalleryPopup(trigger, popupTemplate);
+      open();
+    });
+  });
+}

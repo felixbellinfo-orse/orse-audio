@@ -9,7 +9,9 @@
   <link rel="icon" href="./assets/horse.png" type="image/png">
   <link rel="stylesheet" href="./base.css">
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./gallery.css">
   <script src="./dither.js" defer></script>
+  <script src="./gallery.js" defer></script>
 </head>
 <body>
   <main class="stage">
@@ -26,7 +28,7 @@
           <p>You can rent our soundsystem or Hi-Fi speakers for a weekend or longer for events, installations and parties. We mostly work with smaller, more intimate events, but have got rooms dancing with up to 200 people. We can deliver the soundsystem, set it up and get it sounding right for your event.</p>
           <p>We like to go beyond renting out the soundsystem. We can work with you on the atmosphere, from curating DJs to dressing the space.</p>
           <p><a href="mailto:noise@orseaudio.com?subject=Soundsystem%20rental">Ask about rental</a></p>
-          <p><a href="./events.html">gallery of events &gt;&gt;&gt;</a></p>
+          <p><a href="./events.html" data-open-gallery="events">gallery of events &gt;&gt;&gt;</a></p>
         </div>
       </details>
       <div class="photo">
@@ -41,7 +43,7 @@
         <div class="panel">
           <p>We design and build speakers by hand in Rotterdam. If you have a space or a project in mind, get in touch and tell us what you’re looking for.</p>
           <p><a href="mailto:noise@orseaudio.com?subject=Bespoke%20speaker%20design">Ask about a speaker build</a></p>
-          <p><a href="./speakers.html">gallery of speakers &gt;&gt;&gt;</a></p>
+          <p><a href="./speakers.html" data-open-gallery="speakers">gallery of speakers &gt;&gt;&gt;</a></p>
         </div>
       </details>
       <div class="photo">
@@ -55,5 +57,18 @@
     <a href="tel:+31687851523">+31 687 851 523</a>
     <a href="https://www.instagram.com/orse_audio/" target="_blank" rel="noopener noreferrer">@orse_audio</a>
   </footer>
+
+  <template id="gallery-popup-template">
+    <dialog class="gallery-popup">
+      <header class="gallery-popup-bar">
+        <button class="gallery-popup-close" type="button" aria-label="Close gallery" autofocus>×</button>
+        <h2></h2>
+      </header>
+      <div class="gallery-popup-content">
+        <p class="gallery-status" role="status">Loading photos…</p>
+        <ul class="gallery-grid" data-gallery></ul>
+      </div>
+    </dialog>
+  </template>
 </body>
 </html>

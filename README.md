@@ -1,6 +1,6 @@
 # Orse Audio
 
-A landing page and two photo galleries in plain HTML, CSS and JavaScript. No install or build needed.
+A landing page with two pop-up galleries in plain HTML, CSS and JavaScript. No install or build needed.
 
 ## Change the text
 
@@ -33,7 +33,7 @@ The current horse and both photos are extracted from the supplied mockup. Both s
 }
 ```
 
-Photos are not dithered in either gallery. The square thumbnails are cropped, but the lightbox shows each entire photo. For large galleries, an optional `"thumb": "my-event-small.webp"` can point to a smaller image in the same folder, while `file` stays the full-size version.
+Both gallery links open over the landing page. The X in the top-left corner, a click outside the window, or Escape closes the gallery. Photos are not dithered in either gallery. The square thumbnails are cropped, but the lightbox shows each entire photo. For large galleries, an optional `"thumb": "my-event-small.webp"` can point to a smaller image in the same folder, while `file` stays the full-size version.
 
 ## Put it online
 
