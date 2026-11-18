@@ -4,7 +4,7 @@ A landing page with two pop-up galleries in plain HTML, CSS and JavaScript. No i
 
 ## Change the text
 
-Open `index.html` on GitHub and click the pencil icon. Search for `Edit the rental copy` or `Edit the bespoke copy`. Each paragraph goes in its own `<p>…</p>` inside the matching `.panel`. The box grows to fit the copy. The contact links are in the footer of the same file.
+Open `index.html` on GitHub and click the pencil icon. Search for `Edit the rental copy` or `Edit the bespoke copy`. Each paragraph goes in its own `<p>…</p>` inside the matching `.panel`. The box grows to fit the copy up to its height limit, then scrolls without moving the rest of the page. The contact links are in the footer of the same file.
 
 ## Change the landing-page images
 
