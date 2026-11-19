@@ -4,13 +4,28 @@
   font-display: swap;
 }
 
+/* Add the licensed webfont URLs here when the files are available. */
+@font-face {
+  font-family: "Salium Pro";
+  src: local("Salium Pro"), local("SaliumPro");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "New Edge 666 Light Rounded";
+  src: local("New Edge 666 Light Rounded"), local("NewEdge666 Light Rounded"), local("NewEdge666-LightRounded");
+  font-weight: 300;
+  font-display: swap;
+}
+
 :root {
   --paper: #f0ebd0;
   --ink: #2b3baa;
   --hatched-frame: linear-gradient(var(--paper), var(--paper)) padding-box,
     repeating-linear-gradient(135deg, var(--ink) 0 1px, var(--paper) 1px 2.5px) border-box;
-  --display: Almendra, Georgia, serif;
-  --body: Arial, sans-serif;
+  --display: "Salium Pro", Almendra, Georgia, serif;
+  --body: "New Edge 666 Light Rounded", Arial, sans-serif;
   --text-small: clamp(.75rem, .72rem + .12vw, .875rem);
   --text-copy: clamp(.875rem, .81rem + .17vw, 1rem);
   --text-title: clamp(1.32rem, 1.08rem + .45vw, 1.6rem);
@@ -24,7 +39,7 @@ body {
   flex-direction: column;
   background: var(--paper);
   color: var(--ink);
-  font: var(--text-copy)/1.38 var(--body);
+  font: 300 var(--text-copy)/1.38 var(--body);
 }
 
 .stage {
@@ -52,14 +67,13 @@ body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .horse { animation: rock 6s ease-in-out infinite; }
+  .horse { animation: rock 3s ease-in-out -1.5s infinite alternate; }
   .panel { animation: unfold 220ms ease-out both; }
 }
 
 @keyframes rock {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(var(--swing)); }
-  75% { transform: rotate(calc(-1 * var(--swing))); }
+  from { transform: rotate(calc(-1 * var(--swing))); }
+  to { transform: rotate(var(--swing)); }
 }
 
 @keyframes unfold {
@@ -79,6 +93,8 @@ body {
   display: block;
   margin-block-start: .18rem;
   font-size: var(--text-small);
+  font-family: var(--body);
+  font-weight: 300;
 }
 
 .signature .wordmark {
@@ -145,6 +161,7 @@ details::details-content {
   align-self: stretch;
 }
 .panel p + p { margin-block-start: .85em; }
+.about .panel { max-block-size: min(14rem, 64svh); }
 
 .photo img, .photo canvas { inline-size: 100%; block-size: auto; }
 .photo canvas { image-rendering: pixelated; }
@@ -182,6 +199,7 @@ details::details-content {
   .signature { position: static; margin-block-start: .25rem; white-space: normal; }
   .signature .wordmark { margin-inline: auto; }
   .bespoke { grid-area: 3 / 1; grid-template-columns: minmax(0, 1fr) auto; }
+  .about { grid-area: 4 / 1; }
   .bespoke summary { grid-column: 2; }
   .bespoke .photo { grid-column: 2; }
   .bespoke details::details-content {
@@ -189,21 +207,22 @@ details::details-content {
     justify-self: end;
   }
   .panel { font-size: 1rem; line-height: 1.38; }
-  /* Let the last box use some space below its photo without extending the page. */
+  /* Let the boxes use a little space below their photos without shifting the page. */
   .bespoke .panel { max-block-size: min(calc(100% + 4.5rem), 64svh); }
+  .about .panel { max-block-size: min(calc(100% + 1.5rem), 64svh); }
 }
 
 @media (min-width: 950px) {
   .stage {
     inline-size: min(100%, 105rem);
     grid-template-columns: 33.5% 33% 33.5%;
-    grid-template-rows: auto;
+    grid-template-rows: auto auto;
     gap: 0;
     padding: 0 0 2.5rem;
   }
 
   .brand {
-    grid-area: 1 / 2;
+    grid-area: 1 / 2 / span 2;
     margin-block: clamp(14.5rem, 36.7svh, 25rem) 0;
   }
 
@@ -216,9 +235,16 @@ details::details-content {
 
   .bespoke {
     --photo-width: 200px;
-    grid-area: 1 / 3;
+    grid-area: 1 / 3 / span 2;
     margin-block-start: clamp(9rem, 26.6svh, 18rem);
     margin-inline: 18.9% 1rem;
+  }
+
+  .about {
+    --photo-width: 190px;
+    grid-area: 2 / 1;
+    margin-block-start: clamp(2rem, 6svh, 4rem);
+    margin-inline-start: 53%;
   }
 
   .rental .photo { margin-inline-start: 1.05rem; }
@@ -247,5 +273,6 @@ details::details-content {
       inset-inline: auto 0;
       max-block-size: min(15rem, 64svh);
     }
+    .about .panel { max-block-size: min(10rem, 64svh); }
   }
 }

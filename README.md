@@ -4,7 +4,7 @@ A landing page with two pop-up galleries in plain HTML, CSS and JavaScript. No i
 
 ## Change the text
 
-Open `index.html` on GitHub and click the pencil icon. Search for `Edit the rental copy` or `Edit the bespoke copy`. Each paragraph goes in its own `<p>…</p>` inside the matching `.panel`. The box grows to fit the copy up to its height limit, then scrolls without moving the rest of the page. The contact links are in the footer of the same file.
+Open `index.html` and search for `Edit the rental copy`, `Edit the bespoke copy`, or `Edit the about copy`. Each paragraph goes in its own `<p>…</p>` inside the matching `.panel`. The box grows to fit the copy up to its height limit, then scrolls without moving the rest of the page. The contact links are in the footer of the same file.
 
 ## Change the landing-page images
 
@@ -12,7 +12,13 @@ Open `index.html` on GitHub and click the pencil icon. Search for `Edit the rent
 2. In `index.html`, update the corresponding `src` and `alt` text. Set `width` and `height` to the new file’s dimensions so the layout is stable while it loads.
 3. The `data-dither` attribute tells `dither.js` to render it in the same ink colour as the text. Remove the attribute if you prefer to supply a finished image. Adjust `DITHER_WIDTH` in `dither.js` to change the dot size.
 
-The horse and wordmark are loaded from `assets/horse.png` and `assets/orse-wordmark.png`. The swing is set by `--swing` in `style.css`. The title font is Almendra, with its license in `assets/almendra-license.txt`.
+The About section uses the rental image for now, as in the mockup. To give it a separate photo, change the `src` inside the About section only. The horse and wordmark are loaded from `assets/horse.png` and `assets/orse-wordmark.png`. The swing is set by `--swing` in `style.css`.
+
+## Set up the webfonts
+
+Headings are configured for [Salium Pro](https://www.fgstudios.net/salium-pro-font/) and body text for [New Edge 666 Light Rounded](https://www.charlotterohde.de/typefaces/new-edge-666). Until licensed webfont files are added, the site can use a locally installed copy where the browser recognizes it, and otherwise uses Almendra and Arial. Almendra’s license is in `assets/almendra-license.txt`. The wordmark remains an image.
+
+With the licensed `.woff2` files, add them to `assets/` and replace each font’s `src: local(...)` in `style.css` with `src: url("./assets/filename.woff2") format("woff2");`, using the corresponding filename. Check that the licences cover wherever the website and preview are hosted before uploading the files.
 
 ## Add photos to the galleries
 
