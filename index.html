@@ -8,7 +8,7 @@
   <title>Orse Audio | Handmade sound in Rotterdam</title>
   <link rel="icon" href="./assets/horse.png" type="image/png">
   <link rel="stylesheet" href="./base.css">
-  <link rel="stylesheet" href="./style.css?v=about-desktop">
+  <link rel="stylesheet" href="./style.css?v=compact-mobile">
   <link rel="stylesheet" href="./gallery.css">
   <script src="./dither.js" defer></script>
   <script src="./gallery.js" defer></script>
@@ -44,9 +44,9 @@
         <summary>bespoke speaker design</summary>
         <!-- Edit the bespoke copy between the opening and closing .panel tags. -->
         <div class="panel">
-          <p>Hello, we are Orse Audio. We’ve been hand-building custom speakers for artist studios, experimental sound installations, institutions, raves and spaces where people gather since 2021.</p>
-          <p>To us, a speaker is more than just a black box in the corner of a room, its a bridge between artistic expression, acoustic quality and people, one that can shape how a space looks and sounds and how we feel within them. We like to experiment with craft processes and form to bring unique design ideas to life without compromising on sound quality. By hand building everything from our atelier in Rotterdam, no CNC’s here, means no two speakers are the same, leaving them alive with the kind of small imperfections that makes music feel human.</p>
-          <p>We are happy to take on custom orders made to suit your needs, from a single pair of speakers to a full set up for bar or venue. Feel free to get in touch for a chat or come by the studio to listen to a pair.</p>
+          
+          <p>We like to experiment with craft processes, materials and form to bring unique design ideas to life without compromising on sound quality. By hand building everything from our atelier in Rotterdam, no CNC’s here, means no two speakers are the same, leaving them alive with the kind of small imperfections that makes music feel human.</p>
+          <p>We are happy to take on custom orders made to suit your needs, from a single pair of speakers to a full set up for bar or venue.</p>
           <p><a href="mailto:noise@orseaudio.com?subject=Bespoke%20speaker%20design">Ask about a speaker build</a></p>
           <p><a href="./speakers.html" data-open-gallery="speakers">gallery of speakers &gt;&gt;&gt;</a></p>
         </div>
@@ -61,12 +61,12 @@
         <summary>about</summary>
         <!-- Edit the about copy between the opening and closing .panel tags. -->
         <div class="panel">
-          <p>Orse Audio is a speaker design and soundsystem rental studio based in Rotterdam. We’ve been building speakers by hand since 2021.</p>
-          <p><a href="mailto:noise@orseaudio.com">Get in touch</a> to visit the studio and listen to a pair.</p>
+          <p>Hello, we are Orse Audio. We’ve been hand-building custom speakers for artist studios, experimental sound installations, institutions, raves and spaces where people gather since 2021.</p>
+          <p>To us, a speaker is more than just a black box in the corner of a room, its a bridge between artistic curiosity, acoustic expression and people, one that can not only shape how a space looks and sounds but how we feel within them. </p>
+          <p><a href="mailto:noise@orseaudio.com">Get in touch</a> for a chat or come by the studio to listen to a pair.</p>
         </div>
       </details>
-      <div class="photo">
-        <img src="./assets/rental.png" alt="" width="314" height="279" data-dither>
+      
       </div>
     </section>
   </main>
@@ -90,5 +90,15 @@
       </div>
     </dialog>
   </template>
+  <script>
+  document.addEventListener("click", (event) => {
+    // Leave the text box open while someone is using a gallery or lightbox.
+    if (event.target.closest(".gallery-popup, .lightbox")) return;
+
+    document.querySelectorAll("details.disclosure[open]").forEach((box) => {
+      if (!box.contains(event.target)) box.open = false;
+    });
+  });
+</script>
 </body>
 </html>
