@@ -241,12 +241,15 @@ details::details-content {
   }
 
   .about {
-    --photo-width: 190px;
-    grid-area: 2 / 1;
-    margin-block-start: clamp(2rem, 6svh, 4rem);
-    margin-inline-start: 53%;
+    --photo-width: clamp(7rem, 20svh, 190px);
+    grid-area: 1 / 2;
+    inline-size: min(100%, 18.25rem);
+    justify-self: center;
+    justify-items: center;
+    margin-block-start: clamp(1.25rem, 4svh, 2.5rem);
   }
 
+  .about summary { text-align: center; }
   .rental .photo { margin-inline-start: 1.05rem; }
   .bespoke .photo { margin-inline-start: 1.75rem; }
 }
