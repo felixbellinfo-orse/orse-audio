@@ -276,3 +276,32 @@ details::details-content {
     .about .panel { max-block-size: min(10rem, 64svh); }
   }
 }
+
+@media (max-width: 600px) {
+  .stage {
+    /* Leave space for the headings, wordmark and contact links before sizing the art. */
+    --phone-art-height: clamp(2.5rem, calc((100svh - 21rem) / 4), 7rem);
+    --horse-width: min(27vw, var(--phone-art-height));
+    --photo-width: min(34vw, 8rem);
+    align-content: space-between;
+    gap: .35rem;
+    padding-block: .75rem .5rem;
+  }
+
+  .brand { margin-block: .25rem; }
+  .signature .wordmark { inline-size: 105px; }
+  .photo { margin-block-start: .2rem; }
+  .photo :is(img, canvas) {
+    inline-size: auto;
+    max-block-size: var(--phone-art-height);
+  }
+  .contact { padding-block: 0 .35rem; }
+  .panel { padding: .55rem; }
+  .rental .panel { max-block-size: min(calc(var(--phone-art-height) + 4.5rem), 52svh); }
+  .bespoke .panel, .about .panel { max-block-size: calc(100% + .3rem); }
+
+  @supports not selector(details::details-content) {
+    .photo, .bespoke .photo { margin-block-start: calc(44px + .2rem); }
+    .bespoke .panel, .about .panel { max-block-size: var(--phone-art-height); }
+  }
+}
