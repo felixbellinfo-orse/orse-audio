@@ -40,6 +40,7 @@ if (typeof servicePopup?.showModal === "function") {
   });
 
   closeButton.addEventListener("click", () => servicePopup.close());
+  closeOnOutside(servicePopup);
   servicePopup.addEventListener("close", () => {
     if (!active) return;
     const { box, panel, summary } = active;

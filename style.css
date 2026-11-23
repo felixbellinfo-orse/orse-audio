@@ -282,11 +282,12 @@ details::details-content {
 
 @media (max-width: 600px) {
   .stage {
-    /* Keep the horse size; give the photos 20% more room where the footer fits. */
+    /* Reserve enough height for the headings, horse, and contact links. */
     --phone-art-height: clamp(2.5rem, calc((100svh - 21rem) / 4), 7rem);
     --horse-width: min(27vw, var(--phone-art-height));
+    --phone-photo-budget: calc(100svh - 20.75rem - var(--horse-width));
     --phone-photo-height: min(calc(1.2 * var(--phone-art-height)),
-      max(1rem, calc((100svh - 20.75rem - var(--horse-width)) / 2)));
+      max(1rem, calc(var(--phone-photo-budget) / 2)));
     --photo-width: min(40.8vw, 9.6rem);
     align-content: space-between;
     gap: .35rem;
@@ -299,6 +300,10 @@ details::details-content {
   .photo :is(img, canvas) {
     inline-size: auto;
     max-block-size: var(--phone-photo-height);
+  }
+  .bespoke .photo :is(img, canvas) {
+    max-block-size: min(calc(1.2 * var(--phone-photo-height)),
+      max(var(--phone-photo-height), calc(var(--phone-photo-budget) - var(--phone-photo-height))));
   }
   .contact { padding-block: 0 .35rem; }
   .panel { padding: .55rem; }

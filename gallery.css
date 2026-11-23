@@ -218,12 +218,15 @@ html:has(.lightbox[open], .gallery-popup[open]) { overflow: hidden; }
 
 @media (max-width: 600px) {
   .service-popup {
-    inset: 0;
-    inline-size: 100%;
-    block-size: 100vh;
-    block-size: 100dvh;
+    inset: 0 1rem;
+    margin-block: auto;
+    block-size: fit-content;
+    max-block-size: calc(100vh - 3rem);
+    max-block-size: min(84dvh, calc(100dvh - 3rem));
+    box-shadow: 0 .4rem 1.5rem color-mix(in srgb, var(--ink) 17%, transparent);
   }
 
+  .service-popup::backdrop { background: color-mix(in srgb, var(--ink) 8%, transparent); }
   .service-popup .gallery-popup-content { padding: 1rem; }
   .service-popup .panel {
     position: static;
