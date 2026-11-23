@@ -216,6 +216,27 @@ html:has(.lightbox[open], .gallery-popup[open]) { overflow: hidden; }
   .lightbox { inline-size: min(calc(100% - 1.5rem), 38rem); }
 }
 
+@media (max-width: 600px) {
+  .service-popup {
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100vh;
+    block-size: 100dvh;
+  }
+
+  .service-popup .gallery-popup-content { padding: 1rem; }
+  .service-popup .panel {
+    position: static;
+    inline-size: min(100%, 40rem);
+    max-block-size: none;
+    overflow: visible;
+    padding: 0;
+    border: 0;
+    background: none;
+    animation: none;
+  }
+}
+
 @media (max-width: 530px) {
   .gallery-header { grid-template-columns: 1fr auto; }
   .gallery-header h1 { grid-row: 2; grid-column: 1 / -1; }

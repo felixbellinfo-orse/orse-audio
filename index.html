@@ -8,10 +8,11 @@
   <title>Orse Audio | Handmade sound in Rotterdam</title>
   <link rel="icon" href="./assets/horse.png" type="image/png">
   <link rel="stylesheet" href="./base.css">
-  <link rel="stylesheet" href="./style.css?v=compact-mobile">
-  <link rel="stylesheet" href="./gallery.css">
+  <link rel="stylesheet" href="./style.css?v=mobile-panels">
+  <link rel="stylesheet" href="./gallery.css?v=mobile-panels">
   <script src="./dither.js" defer></script>
   <script src="./gallery.js" defer></script>
+  <script src="./mobile-panels.js" defer></script>
 </head>
 <body>
   <main class="stage">
@@ -66,8 +67,6 @@
           <p><a href="mailto:noise@orseaudio.com">Get in touch</a> for a chat or come by the studio to listen to a pair.</p>
         </div>
       </details>
-      
-      </div>
     </section>
   </main>
 
@@ -90,6 +89,13 @@
       </div>
     </dialog>
   </template>
+  <dialog class="gallery-popup service-popup" aria-labelledby="service-popup-title">
+    <header class="gallery-popup-bar">
+      <button class="gallery-popup-close" type="button" aria-label="Close text box" autofocus>×</button>
+      <h2 id="service-popup-title"></h2>
+    </header>
+    <div class="gallery-popup-content"></div>
+  </dialog>
   <script>
   document.addEventListener("click", (event) => {
     // Leave the text box open while someone is using a gallery or lightbox.
